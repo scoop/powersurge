@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 )
 
@@ -15,6 +16,7 @@ var (
 	socket     = flag.Int("socket", 1, "Number of the socket the router is connected to")
 	password   = flag.String("password", "1", "Password for power strip GUI")
 	interval   = flag.String("interval", "10m", "Interval in which to run the test. Example: 10s, 5m, 1h")
+	cron       = flag.Bool("cron", false, "Cron mode. Only tests once and exits.")
 	resetCount int
 )
 
@@ -45,6 +47,13 @@ func RestartRouter() {
 
 func main() {
 	flag.Parse()
+
+	if *cron {
+		if !TestConnection() {
+			RestartRouter()
+		}
+		os.Exit(0)
+	}
 
 	for {
 		if !TestConnection() {
